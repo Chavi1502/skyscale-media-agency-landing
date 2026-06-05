@@ -30,12 +30,13 @@ A premium, dark-themed landing page template for Meta (Facebook/Instagram) adver
 ```
 skyscale-media-landing/
 ├── index.html          # Main landing page (single file)
+├── fonts/               #fonts
+├── js/                  #js
+├── images/              #images
 ├── README.md           # This file
 ├── LICENSE             # MIT License
 ├── .gitignore          # Git ignore rules
-└── assets/             # (Optional) Create this folder for local images
-    ├── images/
-    └── fonts/
+
 ```
 
 > **Note:** This template is intentionally a single `index.html` file so it's easy to host anywhere — GitHub Pages, Netlify, Vercel, or any static server.
