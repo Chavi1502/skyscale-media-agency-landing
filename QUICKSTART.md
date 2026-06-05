@@ -111,7 +111,6 @@
 
 ## Need Help?
 
-- 📧 Email: skyscalemedia@gmail.com
 - 🐛 Open an issue on this GitHub repository
 - 💬 Contact the template author through your subscription platform
 
