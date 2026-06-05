@@ -1,0 +1,12 @@
+# Serve .mjs files as JavaScript modules
+AddType application/javascript .mjs
+
+# Also ensure .js files are served correctly (backup)
+AddType application/javascript .js
+
+# Enable CORS for module imports (if needed)
+<<IfModule mod_headers.c>
+    <FilesMatch "\.(mjs|js)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>

@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyyScale Media | Meta Ad Agency</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --surface-light: #111111;
+            --border: rgba(255,255,255,0.06);
+            --text: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59,130,246,0.3);
+            --success: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .section-label {
+            display: inline-block;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+        .section-header p { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideLeft {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            position: relative;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+        }
+        .logo svg { width: 32px; height: 32px; }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta {
+            background: var(--text);
+            color: var(--bg);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-cta:hover { background: #e4e4e7; }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+        .mobile-nav.active { display: flex; }
+        .mobile-nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .mobile-nav .nav-cta {
+            font-size: 16px;
+            padding: 12px 28px;
+        }
+        .mobile-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+         /* ==================== HERO SECTION WITH REAL EARTH GLOBE ==================== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 80px;
+            padding-bottom: 80px;
+            z-index: 2;
+            background: transparent;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        /* Stars container - ONLY IN HERO */
+        .hero-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse at center, #03040a 0%, #000000 100%);
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s infinite ease-in-out;
+            box-shadow: 0 0 4px rgba(255,255,255,0.8);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 3D Earth Globe Container - REALISTIC */
+        .hero-earth-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            
+            transform: translate(-50%, -50%);
+            width: min(85vw, 85vh, 700px);
+            height: min(85vw, 85vh, 700px);
+            z-index: 1;
+            pointer-events: none;
+            will-change: transform;
+            filter: drop-shadow(0 0 30px rgba(59,130,246,0.2));
+        }
+        
+        #earthCanvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(59,130,246,0.3), 0 0 20px rgba(0,0,0,0.5);
+            display: block;
+        }
+        
+        
+
+        @media (max-width: 768px) {
+            .hero-earth-container {
+                width: min(90vw, 90vh, 450px);
+                height: min(90vw, 90vh, 450px);
+                margin-top: -150px;
+                opacity: 0.95;
+            }
+            .hero {
+        padding-top: 70px;
+        min-height: auto;
+        padding-bottom: 60px;
+    }
+        }
+        @media (max-width: 480px) {
+            .hero-earth-container {
+                width: min(85vw, 380px);
+                height: min(85vw, 380px);
+            }
+        }
+
+        /* Hero content - above stars and earth */
+        .hero-inner {
+            position: relative;
+            z-index: 15;
+            max-width: 700px;
+            background: rgba(0,0,0,0.45);
+            
+            border-radius: 32px;
+            padding: 24px 32px 32px 32px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        @media (max-width: 768px) {
+            .hero-inner {
+                background: rgba(0,0,0,0.65);
+              margin-top: 80px;
+                padding: 20px 24px;
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.7);
+            
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1);}
+            50% { opacity: 0.5; transform: scale(1.2);}
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 44px; }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; letter-spacing: -1px; }
+        }
+
+        .hero-subtitle {
+            font-size: 17px;
+            color: #d4d4d8;
+            margin-bottom: 32px;
+            max-width: 520px;
+            line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: var(--bg);
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background: #e4e4e7;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e4e4e7;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .stars {
+            color: #fbbf24;
+            letter-spacing: 2px;
+        }
+
+        /* Logo Scroller */
+        .logo-scroller-section { padding: 24px 0 0; text-align: center; }
+        .logo-scroller-label {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .logo-scroller {
+            padding: 30px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+        .logo-scroller::before, .logo-scroller::after {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 120px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .logo-scroller::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+        .logo-scroller::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
+        .scroller-track {
+            display: flex;
+            gap: 40px;
+            width: max-content;
+            animation: slideLeft 30s linear infinite;
+        }
+        .scroller-track:hover { animation-play-state: paused; }
+        .logo-item {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .logo-item:hover { transform: scale(1.1); border-color: rgba(255,255,255,0.2); }
+        .logo-item span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; line-height: 1.2; }
+
+        /* Typography Section */
+        .typography-section {
+            padding: 100px 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        .typography-text {
+            font-size: clamp(28px, 5vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .typography-text .opaque { color: var(--text); }
+        .typography-text .transparent {
+            background: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,0.08));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Portfolio */
+        .portfolio { padding: 80px 0; }
+        .portfolio-slider {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        .portfolio-track {
+            display: flex;
+            gap: 20px;
+            animation: slideLeft 25s linear infinite;
+            width: max-content;
+        }
+        .portfolio-card {
+            width: 360px;
+            height: 240px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+        }
+        .portfolio-card img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .portfolio-card:hover img { transform: scale(1.05); }
+        .portfolio-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+        .portfolio-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .portfolio-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .portfolio-dot.active { background: var(--text); width: 24px; border-radius: 4px; }
+        .portfolio-arrows {
+            position: absolute;
+            top: 50%; transform: translateY(-50%);
+            width: 100%; display: flex;
+            justify-content: space-between;
+            padding: 0 16px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .portfolio-arrow {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        .portfolio-arrow:hover { background: rgba(255,255,255,0.2); }
+
+        /* Services */
+        .services { padding: 80px 0; }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .service-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .service-card:hover::before { opacity: 1; }
+        .service-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .service-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+        .service-features { list-style: none; }
+        .service-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .tick-icon {
+            width: 18px; height: 18px;
+            background: rgba(34,197,94,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            font-size: 11px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Platforms */
+        .platforms { padding: 60px 0; }
+        .platforms .scroller-track { animation-direction: reverse; }
+
+        /* Benefits */
+        .benefits { padding: 80px 0; }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .benefit-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .benefit-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 100%;
+            background: linear-gradient(to top, rgba(59,130,246,0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .benefit-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .benefit-card:hover::after { opacity: 1; }
+        .benefit-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
+        .benefit-card p { color: var(--text-muted); font-size: 14px; line-height: 1.6; position: relative; z-index: 1; }
+        .benefit-icon {
+            width: 44px; height: 44px;
+            background: var(--surface-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* Process */
+        .process { padding: 80px 0; }
+        .process-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0; bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+        .process-step {
+            display: flex;
+            gap: 28px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .process-step:last-child { margin-bottom: 0; }
+        .process-number {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .process-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            flex: 1;
+            transition: all 0.3s;
+        }
+        .process-content:hover { border-color: rgba(255,255,255,0.15); transform: translateX(6px); }
+        .process-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .process-content p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+        /* Testimonials */
+        .testimonials { padding: 80px 0; overflow: hidden; }
+        .testimonial-track {
+            display: flex;
+            gap: 20px;
+            animation: slideLeft 35s linear infinite;
+            width: max-content;
+        }
+        .testimonial-track:hover { animation-play-state: paused; }
+        .testimonial-card {
+            width: 380px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .testimonial-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .testimonial-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .testimonial-meta h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .testimonial-meta .stars { font-size: 12px; }
+        .testimonial-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+
+        /* Results */
+        .results { padding: 80px 0; }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 24px;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(59,130,246,0.1), transparent 70%);
+            pointer-events: none;
+        }
+        .result-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+        .result-card .number {
+            font-size: 44px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        .result-card .label { color: var(--text-muted); font-size: 15px; position: relative; }
+
+        /* Founder */
+        .founder { padding: 80px 0; }
+        .founder-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 40px;
+            align-items: start;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .founder-card::before {
+            content: '';
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(59,130,246,0.1), transparent 70%);
+            pointer-events: none;
+        }
+        .founder-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1e3a5f, #0a1628);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            position: relative;
+            overflow: hidden;
+        }
+        .founder-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(59,130,246,0.2)" stroke-width="0.5"/></svg>');
+            background-size: 20px 20px;
+            opacity: 0.5;
+        }
+        .founder-content { text-align: left; }
+        .founder-content h3 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .founder-content .role { color: var(--accent); font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+        .founder-content p { color: var(--text-secondary); font-size: 15px; line-height: 1.8; }
+
+        /* FAQ */
+        .faq { padding: 80px 0; }
+        .faq-list { max-width: 800px; margin: 0 auto; }
+        .faq-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .faq-item:hover { border-color: rgba(255,255,255,0.1); }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            gap: 16px;
+        }
+        .faq-question:hover { color: var(--text-secondary); }
+        .faq-icon {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .faq-item.active .faq-icon { transform: rotate(45deg); background: var(--accent); }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s;
+            padding: 0 24px;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 0 24px 20px;
+        }
+        .faq-answer p { color: var(--text-muted); font-size: 14px; line-height: 1.7; }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(59,130,246,0.08), transparent 70%);
+            pointer-events: none;
+        }
+        .cta-section h2 {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .cta-section p { color: var(--text-muted); font-size: 17px; margin-bottom: 32px; position: relative; }
+        .cta-buttons { display: flex; gap: 12px; justify-content: center; position: relative; flex-wrap: wrap; }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 60px 0 32px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 40px;
+            margin-bottom: 48px;
+        }
+        .footer-brand .logo { margin-bottom: 16px; }
+        .footer-brand p { color: var(--text-muted); font-size: 14px; line-height: 1.7; max-width: 280px; }
+        .footer-links h4 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; color: var(--text-secondary); }
+        .footer-links a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover { color: var(--text); }
+        .footer-contact p {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .social-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .social-icon:hover { background: var(--accent); color: var(--text); border-color: var(--accent); transform: translateY(-2px); }
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* =================== RESPONSIVE =================== */
+        @media (max-width: 1024px) {
+            .hero-bg-globe { width: 400px; height: 400px; right: -15%; opacity: 0.4; }
+            .hero h1 { font-size: 44px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+            .founder-card { grid-template-columns: 1fr; text-align: center; }
+            .founder-content { text-align: center; }
+            .founder-image { max-width: 200px; margin: 0 auto; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero { padding-top: 70px; min-height: auto; padding-bottom: 60px; }
+            .hero-bg-globe { display: none; }
+            .hero h1 { font-size: 32px; letter-spacing: -1px; }
+            .hero-subtitle { font-size: 15px; }
+            .hero-cta { flex-direction: column; }
+            .btn-primary, .btn-secondary { width: 100%; justify-content: center; padding: 10px 20px; font-size: 14px; }
+            .section-header h2 { font-size: 28px; }
+            .section-header p { font-size: 15px; }
+            .benefits-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr; max-width: 100%; }
+            .result-card { padding: 28px 20px; }
+            .result-card .number { font-size: 36px; }
+            .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+            .portfolio-card { width: 280px; height: 190px; }
+            .testimonial-card { width: 300px; padding: 20px; }
+            .process-timeline::before { left: 20px; }
+            .process-step { gap: 20px; }
+            .process-number { width: 42px; height: 42px; font-size: 14px; }
+            .process-content { padding: 18px; }
+            .founder-card { padding: 32px 24px; }
+            .founder-content { text-align: left; }
+            .cta-section h2 { font-size: 28px; }
+            .typography-text { font-size: 28px; }
+            .logo-item { width: 60px; height: 60px; }
+            .logo-item span { font-size: 9px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 26px; }
+            .section-header h2 { font-size: 24px; }
+            .service-card { padding: 24px; }
+            .benefit-card { padding: 22px; }
+            .testimonial-card { width: 260px; }
+            .portfolio-card { width: 240px; height: 160px; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    
+
+
+<!-- Navbar -->
+<nav>
+    <div class="container nav-inner">
+        <div class="logo">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="20" width="6" height="16" rx="1" fill="#3b82f6"/>
+                <rect x="14" y="14" width="6" height="22" rx="1" fill="#2563eb"/>
+                <rect x="24" y="8" width="6" height="28" rx="1" fill="#1d4ed8"/>
+                <rect x="34" y="2" width="6" height="34" rx="1" fill="#1e40af"/>
+                <path d="M8 16L16 10L26 6L36 2" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="36" cy="2" r="3" fill="#60a5fa"/>
+            </svg>
+            SkyScale
+        </div>
+        <div class="nav-links">
+            <a href="#services">Services</a>
+            <a href="#process">Process</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#faq">FAQ</a>
+            <a href="#contact" class="nav-cta">Book a Call</a>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" onclick="toggleMobileMenu()">✕</button>
+    <a href="#services" onclick="toggleMobileMenu()">Services</a>
+    <a href="#process" onclick="toggleMobileMenu()">Process</a>
+    <a href="#testimonials" onclick="toggleMobileMenu()">Testimonials</a>
+    <a href="#faq" onclick="toggleMobileMenu()">FAQ</a>
+    <a href="#contact" class="nav-cta" onclick="toggleMobileMenu()">Book a Call</a>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+    
+    <!-- Stars container - ONLY IN HERO -->
+    <div class="hero-stars" id="heroStarsContainer"></div>
+    
+    <!-- 3D Realistic Earth Globe Container -->
+    <div class="hero-earth-container">
+        <canvas id="earthCanvas"></canvas>
+    </div>
+     
+    
+    <div class="container hero-inner">
+             <div class="hero-badge">
+            <span class="dot"></span>
+            <span>Your Success Partner</span>
+        </div>  
+        <h1>Scale Your Revenue With Meta Ads That Actually Work</h1>
+        <p class="hero-subtitle">Run profitable Facebook and Instagram ads or get the infrastructure that never gets banned. We handle everything so you can focus on growth.</p>
+        <div class="hero-cta">
+            <a href="#contact" class="btn-primary">Book Free Strategy Call →</a>
+            <a href="#portfolio" class="btn-secondary">View Case Studies</a>
+        </div>
+        <div class="trust-badge">
+            <span class="stars">★★★★★</span>
+            <span>Trusted by 500+ founders, business owners and fast-growing companies worldwide</span>
+        </div>
+    </div>
+</section>
+
+<!-- Logo Scroller -->
+<div class="logo-scroller-section">
+    <div class="container">
+        <p class="logo-scroller-label">Trusted by 500+ founders, business owners and fast-growing companies worldwide</p>
+    </div>
+</div>
+<div class="logo-scroller">
+    <div class="scroller-track">
+        <div class="logo-item"><span style="color:#c9a227;">TIARA</span></div>
+        <div class="logo-item"><span style="color:#a78bfa;">TINY<br>PAWS</span></div>
+        <div class="logo-item"><span style="color:#facc15; font-size:18px;">Z</span></div>
+        <div class="logo-item"><span style="color:#78716c; font-size:8px;">NOURISH<br>MANTRA</span></div>
+        <div class="logo-item"><span style="color:#fff; font-size:9px;">Adsmediacore</span></div>
+        <div class="logo-item"><span style="color:#facc15; font-size:18px;">C</span></div>
+        <div class="logo-item"><span style="color:#f97316; font-size:10px;">BuyMyCase</span></div>
+        <div class="logo-item"><span style="color:#dc2626; font-size:18px;">E</span></div>
+        <!-- Duplicate for seamless loop -->
+        <div class="logo-item"><span style="color:#c9a227;">TIARA</span></div>
+        <div class="logo-item"><span style="color:#a78bfa;">TINY<br>PAWS</span></div>
+        <div class="logo-item"><span style="color:#facc15; font-size:18px;">Z</span></div>
+        <div class="logo-item"><span style="color:#78716c; font-size:8px;">NOURISH<br>MANTRA</span></div>
+        <div class="logo-item"><span style="color:#fff; font-size:9px;">Adsmediacore</span></div>
+        <div class="logo-item"><span style="color:#facc15; font-size:18px;">C</span></div>
+        <div class="logo-item"><span style="color:#f97316; font-size:10px;">BuyMyCase</span></div>
+        <div class="logo-item"><span style="color:#dc2626; font-size:18px;">E</span></div>
+    </div>
+</div>
+
+<!-- Typography Section -->
+<section class="typography-section">
+    <div class="container">
+        <div class="typography-text">
+            <span class="opaque">We run ad systems that cut costs, eliminate bans, and scale your revenue</span>
+            <span class="transparent"> without wasting a single dollar of your budget.</span>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio -->
+<section class="portfolio" id="portfolio">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Portfolio</div>
+            <h2>We've Done It Before. We'll Do It For You.</h2>
+            <p>Real campaigns. Real businesses. Real results.</p>
+        </div>
+        <div class="portfolio-slider">
+            <div class="portfolio-arrows">
+                <button class="portfolio-arrow">‹</button>
+                <button class="portfolio-arrow">›</button>
+            </div>
+            <div class="portfolio-track">
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%233b82f6' font-size='24' font-weight='700' font-family='Inter'>E-Commerce Campaign</text></svg>" alt="Campaign 1">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">E-Commerce Growth</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2322c55e' font-size='24' font-weight='700' font-family='Inter'>Lead Generation</text></svg>" alt="Campaign 2">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">B2B Lead Gen</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23facc15' font-size='24' font-weight='700' font-family='Inter'>Brand Awareness</text></svg>" alt="Campaign 3">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">Brand Launch</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23f97316' font-size='24' font-weight='700' font-family='Inter'>App Install Ads</text></svg>" alt="Campaign 4">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">App Growth</span></div>
+                </div>
+                <!-- Duplicate for seamless loop -->
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%233b82f6' font-size='24' font-weight='700' font-family='Inter'>E-Commerce Campaign</text></svg>" alt="Campaign 1">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">E-Commerce Growth</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2322c55e' font-size='24' font-weight='700' font-family='Inter'>Lead Generation</text></svg>" alt="Campaign 2">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">B2B Lead Gen</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23facc15' font-size='24' font-weight='700' font-family='Inter'>Brand Awareness</text></svg>" alt="Campaign 3">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">Brand Launch</span></div>
+                </div>
+                <div class="portfolio-card">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><rect fill='%23111' width='400' height='280'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23f97316' font-size='24' font-weight='700' font-family='Inter'>App Install Ads</text></svg>" alt="Campaign 4">
+                    <div class="portfolio-overlay"><span style="font-weight:600;">App Growth</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="portfolio-nav">
+            <button class="portfolio-dot active"></button>
+            <button class="portfolio-dot"></button>
+            <button class="portfolio-dot"></button>
+            <button class="portfolio-dot"></button>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="services" id="services">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Services</div>
+            <h2>Stop Losing Money On Ads That Don't Work</h2>
+            <p>Everything you need to run, manage, and scale on Meta - under one roof.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card animate-on-scroll">
+                <h3>Ad Management</h3>
+                <p>We run your Meta ad campaigns to lower your costs and maximize your revenue.</p>
+                <ul class="service-features">
+                    <li><span class="tick-icon">✓</span>Campaign strategy & creative direction</li>
+                    <li><span class="tick-icon">✓</span>Audience targeting & funnel setup</li>
+                    <li><span class="tick-icon">✓</span>Ongoing optimization & scaling</li>
+                    <li><span class="tick-icon">✓</span>Weekly performance reporting</li>
+                </ul>
+            </div>
+            <div class="service-card animate-on-scroll delay-1">
+                <h3>Agency Ad Accounts</h3>
+                <p>We provide verified agency accounts to run ads without bans, limits, or GST.</p>
+                <ul class="service-features">
+                    <li><span class="tick-icon">✓</span>100% ban proof, no ad rejections</li>
+                    <li><span class="tick-icon">✓</span>No spending limits, No 18% GST</li>
+                    <li><span class="tick-icon">✓</span>Unlimited pages & domains</li>
+                    <li><span class="tick-icon">✓</span>Free replacement & 24/7 support</li>
+                </ul>
+            </div>
+            <div class="service-card animate-on-scroll delay-2">
+                <h3>PR & Personal Branding</h3>
+                <p>We help influencers and public figures grow their personal brand through editing, PR, and visibility management.</p>
+                <ul class="service-features">
+                    <li><span class="tick-icon">✓</span>Professional content editing & production</li>
+                    <li><span class="tick-icon">✓</span>Personal brand strategy & positioning</li>
+                    <li><span class="tick-icon">✓</span>PR management & media visibility</li>
+                    <li><span class="tick-icon">✓</span>Delivered in partnership with our agency network</li>
+                </ul>
+            </div>
+            <div class="service-card animate-on-scroll delay-3">
+                <h3>Facebook Assets</h3>
+                <p>We supply aged, verified Meta assets so you can advertise with instant platform trust.</p>
+                <ul class="service-features">
+                    <li><span class="tick-icon">✓</span>Aged & verified Facebook pages</li>
+                    <li><span class="tick-icon">✓</span>Clean, trusted Business Managers</li>
+                    <li><span class="tick-icon">✓</span>Full Meta asset packages available</li>
+                    <li><span class="tick-icon">✓</span>Instant transfer, ready to advertise</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platforms -->
+<section class="platforms">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Platforms</div>
+            <h2>Backed By The Best Platforms In The Game.</h2>
+            <p>We operate at the highest level as certified partners of the platforms driving global ad performance.</p>
+        </div>
+    </div>
+    <div class="logo-scroller" style="border:none; margin-top:32px;">
+        <div class="scroller-track" style="animation-direction: reverse;">
+            <div class="logo-item"><span style="color:#1877f2; font-size:22px;">f</span></div>
+            <div class="logo-item"><span style="color:#E1306C; font-size:18px;">Ig</span></div>
+            <div class="logo-item"><span style="color:#ff0000; font-size:16px;">YT</span></div>
+            <div class="logo-item"><span style="color:#00aff0; font-size:16px;">in</span></div>
+            <div class="logo-item"><span style="color:#25d366; font-size:18px;">Wa</span></div>
+            <div class="logo-item"><span style="color:#000; font-size:16px; background:#fff; width:100%; height:100%; display:flex; align-items:center; justify-content:center; border-radius:50%;">Tk</span></div>
+            <div class="logo-item"><span style="color:#ff4500; font-size:16px;">Rd</span></div>
+            <div class="logo-item"><span style="color:#bd081c; font-size:16px;">Pt</span></div>
+            <!-- Duplicate -->
+            <div class="logo-item"><span style="color:#1877f2; font-size:22px;">f</span></div>
+            <div class="logo-item"><span style="color:#E1306C; font-size:18px;">Ig</span></div>
+            <div class="logo-item"><span style="color:#ff0000; font-size:16px;">YT</span></div>
+            <div class="logo-item"><span style="color:#00aff0; font-size:16px;">in</span></div>
+            <div class="logo-item"><span style="color:#25d366; font-size:18px;">Wa</span></div>
+            <div class="logo-item"><span style="color:#000; font-size:16px; background:#fff; width:100%; height:100%; display:flex; align-items:center; justify-content:center; border-radius:50%;">Tk</span></div>
+            <div class="logo-item"><span style="color:#ff4500; font-size:16px;">Rd</span></div>
+            <div class="logo-item"><span style="color:#bd081c; font-size:16px;">Pt</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits -->
+<section class="benefits" id="benefits">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Benefits</div>
+            <h2>What You Actually Get When You Work With Us.</h2>
+            <p>Everything you need to win on Meta. Under one roof.</p>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-card animate-on-scroll">
+                <div class="benefit-icon">📉</div>
+                <h3>Lower Ad Costs</h3>
+                <p>Cut the waste first, make your budget work harder, then scale what's actually winning.</p>
+            </div>
+            <div class="benefit-card animate-on-scroll delay-1">
+                <div class="benefit-icon">📊</div>
+                <h3>Transparent Reporting</h3>
+                <p>Always know where your money is going and exactly what it's returning. No vague updates.</p>
+            </div>
+            <div class="benefit-card animate-on-scroll delay-2">
+                <div class="benefit-icon">💰</div>
+                <h3>No GST Overhead</h3>
+                <p>Save 18% on every top-up and keep that money where it belongs back in your ad spend.</p>
+            </div>
+            <div class="benefit-card animate-on-scroll">
+                <div class="benefit-icon">🛡️</div>
+                <h3>Zero Ban Anxiety</h3>
+                <p>Run on Meta's trusted infrastructure, no random restrictions, no waking up to a dead campaign.</p>
+            </div>
+            <div class="benefit-card animate-on-scroll delay-1">
+                <div class="benefit-icon">🌐</div>
+                <h3>Full Meta Coverage</h3>
+                <p>Ads, accounts, pages, Business Managers, one partner for everything, no gaps.</p>
+            </div>
+            <div class="benefit-card animate-on-scroll delay-2">
+                <div class="benefit-icon">👁️</div>
+                <h3>Dedicated Monitoring</h3>
+                <p>Your campaigns are watched and optimized daily, not checked once a week on autopilot.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Process -->
+<section class="process" id="process">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Process</div>
+            <h2>How It Works. Simple. Fast. No Fluff.</h2>
+            <p>From first conversation to live campaigns in days, not months.</p>
+        </div>
+        <div class="process-timeline">
+            <div class="process-step animate-on-scroll">
+                <div class="process-number">1</div>
+                <div class="process-content">
+                    <h3>Strategy Call</h3>
+                    <p>We get on a call, understand your business, your offer, your funnel, and what you've already tried. No generic questions. We go deep fast.</p>
+                </div>
+            </div>
+            <div class="process-step animate-on-scroll delay-1">
+                <div class="process-number">2</div>
+                <div class="process-content">
+                    <h3>Strategy & Setup</h3>
+                    <p>We build the campaign structure, audience targeting, and creative direction. Pixel setup, tracking, everything done right from day one.</p>
+                </div>
+            </div>
+            <div class="process-step animate-on-scroll delay-2">
+                <div class="process-number">3</div>
+                <div class="process-content">
+                    <h3>Launch</h3>
+                    <p>Campaigns go live. We monitor the first 48–72 hours closely, make early adjustments, and stabilize performance before scaling.</p>
+                </div>
+            </div>
+            <div class="process-step animate-on-scroll delay-3">
+                <div class="process-number">4</div>
+                <div class="process-content">
+                    <h3>Optimize & Scale</h3>
+                    <p>Once the system is working, we scale what's winning and cut what's not. Weekly reports. Ongoing optimization. No cruise control.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Testimonials</div>
+            <h2>What Our Clients Say</h2>
+            <p>Agencies, ecom brands, and business owners - all scaling on Meta with zero headaches.</p>
+        </div>
+    </div>
+    <div class="testimonial-track">
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">JF</div>
+                <div class="testimonial-meta">
+                    <h4>John Fc.</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Our ROAS went from 1.8x to 4.3x in just 6 weeks. Ad creatives, targeting, and scaling, all handled seamlessly. We crossed ₹12L in monthly revenue for the first time.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">DK</div>
+                <div class="testimonial-meta">
+                    <h4>Danial Kevins</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Before working with them, our pet care ads kept getting rejected. With the agency ad account, zero bans, zero rejections and 100% uptime. Our CPL dropped by 38%.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">JW</div>
+                <div class="testimonial-meta">
+                    <h4>James Whitfield</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Running finance ads in the UK is notoriously difficult. They got us verified Meta assets and a clean Business Manager, no spend limits, no GST overhead.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">RS</div>
+                <div class="testimonial-meta">
+                    <h4>Rohit Sinha</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>From audience setup to weekly reporting, everything was structured and transparent. Our international campaign reached 4.2M impressions in the first month.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">CK</div>
+                <div class="testimonial-meta">
+                    <h4>Chen K.</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>We needed PR and personal branding for our founder alongside performance ads. They delivered both media visibility shot up and our webinar registrations grew by 67% in 30 days.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">KA</div>
+                <div class="testimonial-meta">
+                    <h4>Kabir Arora</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Our Meta ads were burning money with a 1.2x ROAS. After the campaign restructure, we hit 3.9x ROAS in under 8 weeks. Sales crossed ₹8L in a single month.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">NE</div>
+                <div class="testimonial-meta">
+                    <h4>Nathan Ellis</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Getting aged, verified Facebook pages transferred instantly was a game-changer for our investment platform. We went live within 48 hours with full platform trust.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">MN</div>
+                <div class="testimonial-meta">
+                    <h4>Meera Nair</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>B2B lead gen on Meta is tricky, but they nailed the targeting. We generated 180+ qualified leads in the first campaign cycle at a 52% lower CPL than our previous agency.</p>
+        </div>
+        <!-- Duplicates for seamless loop -->
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">JF</div>
+                <div class="testimonial-meta">
+                    <h4>John Fc.</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Our ROAS went from 1.8x to 4.3x in just 6 weeks. Ad creatives, targeting, and scaling, all handled seamlessly. We crossed ₹12L in monthly revenue for the first time.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">DK</div>
+                <div class="testimonial-meta">
+                    <h4>Danial Kevins</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Before working with them, our pet care ads kept getting rejected. With the agency ad account, zero bans, zero rejections and 100% uptime. Our CPL dropped by 38%.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">JW</div>
+                <div class="testimonial-meta">
+                    <h4>James Whitfield</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Running finance ads in the UK is notoriously difficult. They got us verified Meta assets and a clean Business Manager, no spend limits, no GST overhead.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">RS</div>
+                <div class="testimonial-meta">
+                    <h4>Rohit Sinha</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>From audience setup to weekly reporting, everything was structured and transparent. Our international campaign reached 4.2M impressions in the first month.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">CK</div>
+                <div class="testimonial-meta">
+                    <h4>Chen K.</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>We needed PR and personal branding for our founder alongside performance ads. They delivered both media visibility shot up and our webinar registrations grew by 67% in 30 days.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">KA</div>
+                <div class="testimonial-meta">
+                    <h4>Kabir Arora</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Our Meta ads were burning money with a 1.2x ROAS. After the campaign restructure, we hit 3.9x ROAS in under 8 weeks. Sales crossed ₹8L in a single month.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">NE</div>
+                <div class="testimonial-meta">
+                    <h4>Nathan Ellis</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>Getting aged, verified Facebook pages transferred instantly was a game-changer for our investment platform. We went live within 48 hours with full platform trust.</p>
+        </div>
+        <div class="testimonial-card">
+            <div class="testimonial-header">
+                <div class="testimonial-avatar">MN</div>
+                <div class="testimonial-meta">
+                    <h4>Meera Nair</h4>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+            <p>B2B lead gen on Meta is tricky, but they nailed the targeting. We generated 180+ qualified leads in the first campaign cycle at a 52% lower CPL than our previous agency.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Results -->
+<section class="results" id="results">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Results</div>
+            <h2>Numbers built on trust, not promises.</h2>
+            <p>We let results do the talking. Every rupee spent, every brand scaled is accounted for, optimised, and delivered with intent.</p>
+        </div>
+        <div class="results-grid">
+            <div class="result-card animate-on-scroll">
+                <div class="number">548+</div>
+                <div class="label">Clients worked with</div>
+            </div>
+            <div class="result-card animate-on-scroll delay-1">
+                <div class="number">₹50 Cr+</div>
+                <div class="label">Total ad spend managed</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Founder -->
+<section class="founder">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">Founder</div>
+            <h2>Before the Agency, Came the Proof.</h2>
+            <p>From ₹2Cr/month in ecommerce to a marketing agency trusted by 500+ brands worldwide.</p>
+        </div>
+        <div class="founder-card animate-on-scroll">
+            <div class="founder-image">👤</div>
+            <div class="founder-content">
+                <h3>Chavinesh Mukund</h3>
+                <div class="role">Founder of SkyyScaleMedia</div>
+                <p>Chavinesh Mukund didn't start SkyyScale Media to sell marketing, he started it after scaling his own ecommerce brand to ₹2Cr/month. That hands-on journey gave him something no certification could: a real command of paid ads, consumer psychology, and growth at scale. Since founding SkyyScale Media, he's worked with 500+ brands across industries, applying the same operator-first system to every client. Today, the commitment remains unchanged, strategy built on real experience, not guesswork.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-label">FAQ</div>
+            <h2>Questions? We got answers.</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>How quickly can you get my campaigns live?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer"><p>Typically within 48-72 hours after our strategy call. We move fast because we know every day counts when it comes to scaling revenue.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Do you offer agency ad accounts for all countries?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer"><p>Yes, we provide verified agency ad accounts that work globally with no spending limits, no GST overhead, and full ban protection.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What makes SkyScale different from other agencies?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer"><p>Our founder scaled his own ecommerce brand to ₹2Cr/month before starting this agency. We apply that same operator-first mentality to every client. No guesswork, only systems that work.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Do I need to pay GST on ad spend?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer"><p>With our agency ad accounts, you save the 18% GST on every top-up. That money goes back into your ad spend where it belongs.</p></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I get started?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer"><p>Simply book a free strategy call. We'll understand your business, audit your current setup, and propose a custom plan within 24 hours.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <h2>Stop Losing Money On Meta Ads</h2>
+        <p>Stop burning budget. Start scaling with a system that's built to perform.</p>
+        <div class="cta-buttons">
+            <a href="#" class="btn-primary">Book a Free Call →</a>
+            <a href="#" class="btn-secondary">Book a Free Call</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:32px;">
+                        <rect x="4" y="20" width="6" height="16" rx="1" fill="#3b82f6"/>
+                        <rect x="14" y="14" width="6" height="22" rx="1" fill="#2563eb"/>
+                        <rect x="24" y="8" width="6" height="28" rx="1" fill="#1d4ed8"/>
+                        <rect x="34" y="2" width="6" height="34" rx="1" fill="#1e40af"/>
+                        <path d="M8 16L16 10L26 6L36 2" stroke="#60a5fa" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="36" cy="2" r="3" fill="#60a5fa"/>
+                    </svg>
+                    SkyScale Media
+                </div>
+                <p>Scale your business with SkyScale Media. The Meta ad agency that delivers results, not excuses.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon">Ig</a>
+                    <a href="#" class="social-icon">in</a>
+                    <a href="#" class="social-icon">X</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Menu</h4>
+                <a href="#">Home</a>
+                <a href="#services">Services</a>
+                <a href="#portfolio">Projects</a>
+                <a href="#benefits">Benefits</a>
+                <a href="#process">Process</a>
+            </div>
+            <div class="footer-links">
+                <h4>Social</h4>
+                <a href="#">Instagram</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">Twitter</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p>📞 +91 75490 **416</p>
+                <p>✉️ email@gmail.com</p>
+                <p>📍Your address</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            ©2026 SkyyScaleMedia. All Rights Reserved.
+        </div>
+    </div>
+</footer>
+
+<script type="module">
+    import * as THREE from 'three';
+    
+    // Setup realistic Earth globe
+    const canvas = document.getElementById('earthCanvas');
+    const container = document.querySelector('.hero-earth-container');
+    
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    const scene = new THREE.Scene();
+    scene.background = null; // transparent so stars show behind
+    
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 3.2);
+    
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // Earth texture (high-res realistic map)
+    const textureLoader = new THREE.TextureLoader();
+    const earthMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+    const earthSpecularMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg');
+    const earthNormalMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_normal_2048.jpg');
+    const cloudMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png');
+    
+    // Earth sphere
+    const earthGeometry = new THREE.SphereGeometry(1, 128, 128);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+        map: earthMap,
+        specularMap: earthSpecularMap,
+        specular: new THREE.Color('grey'),
+        shininess: 5,
+        normalMap: earthNormalMap,
+        normalScale: new THREE.Vector2(0.8, 0.8)
+    });
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+    
+    // Cloud layer
+    const cloudGeometry = new THREE.SphereGeometry(1.01, 128, 128);
+    const cloudMaterial = new THREE.MeshPhongMaterial({
+        map: cloudMap,
+        transparent: true,
+        opacity: 0.15,
+        blending: THREE.AdditiveBlending
+    });
+    const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+    scene.add(clouds);
+    
+    // Atmosphere glow effect (outer sphere)
+    const atmGeometry = new THREE.SphereGeometry(1.08, 64, 64);
+    const atmMaterial = new THREE.MeshPhongMaterial({
+        color: 0x3b82f6,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.BackSide
+    });
+    const atmosphere = new THREE.Mesh(atmGeometry, atmMaterial);
+    scene.add(atmosphere);
+    
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404060);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    directionalLight.position.set(5, 3, 5);
+    scene.add(directionalLight);
+    const backLight = new THREE.PointLight(0x4466cc, 0.3);
+    backLight.position.set(-2, -1, -3);
+    scene.add(backLight);
+    
+    // Star particles (small stars rotating in background - subtle)
+    const starFieldGeometry = new THREE.BufferGeometry();
+    const starCount = 800;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+        starPositions[i*3] = (Math.random() - 0.5) * 200;
+        starPositions[i*3+1] = (Math.random() - 0.5) * 100;
+        starPositions[i*3+2] = (Math.random() - 0.5) * 80 - 40;
+    }
+    starFieldGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, transparent: true, opacity: 0.6 });
+    const starsField = new THREE.Points(starFieldGeometry, starMaterial);
+    scene.add(starsField);
+    
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    
+    // Mouse parallax effect for globe rotation
+    document.addEventListener('mousemove', (event) => {
+        if (window.innerWidth > 1024) {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+            targetRotationY = mouseX * 0.5;
+            targetRotationX = mouseY * 0.3;
+        }
+    });
+    
+    // Auto-rotation + subtle parallax
+    let autoRotateAngle = 0;
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        autoRotateAngle += 0.002;
+        // smooth rotation: combine auto-rotation and mouse influence
+        earth.rotation.y = autoRotateAngle + targetRotationY * 0.3;
+        earth.rotation.x = targetRotationX * 0.15;
+        clouds.rotation.y = autoRotateAngle + 0.002 + targetRotationY * 0.3;
+        clouds.rotation.x = targetRotationX * 0.15;
+        atmosphere.rotation.y = autoRotateAngle + targetRotationY * 0.2;
+        
+        starsField.rotation.y += 0.0005;
+        starsField.rotation.x += 0.0003;
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+        const newWidth = container.clientWidth;
+        const newHeight = container.clientHeight;
+        camera.aspect = newWidth / newHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(newWidth, newHeight);
+    });
+</script>
+
+<script>
+    // Generate stars ONLY inside hero section (CSS stars)
+    function generateHeroStars() {
+        const starsContainer = document.getElementById('heroStarsContainer');
+        if (!starsContainer) return;
+        starsContainer.innerHTML = '';
+        const starCount = window.innerWidth < 600 ? 120 : (window.innerWidth < 1200 ? 200 : 280);
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            const duration = Math.random() * 4 + 2;
+            star.style.animationDuration = duration + 's';
+            star.style.animationDelay = Math.random() * 5 + 's';
+            star.style.opacity = Math.random() * 0.8 + 0.2;
+            starsContainer.appendChild(star);
+        }
+    }
+
+    function toggleMobileMenu() {
+        document.getElementById('mobileNav').classList.toggle('active');
+    }
+
+    function toggleFaq(element) {
+        const item = element.closest('.faq-item');
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(faq => faq.classList.remove('active'));
+        if (!isActive) item.classList.add('active');
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    window.addEventListener('resize', () => generateHeroStars());
+    generateHeroStars();
+</script>
+</body>
+</html>
